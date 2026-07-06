@@ -1,17 +1,18 @@
 import express from "express";
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 const router = express.Router();
-import User from "../database/user.js";
+import User from "../database/index.js";
 
-router.get("/auth/signin",async(req, res) => {
+router.get("/api/auth/login", async(req, res) => {
     const { email, password } = req.body;
-    const findUser = await User.findOne({ email,password });
-    if(!findUser) {
-        return res.status(404).json({ message : "User not found" });
+    const findUser = await User.findOne({ email });
+    if(!findUser || !await bcrypt.compare(password,findUser.password)) {
+        return res.status(404).json({ message : "User doesn't exist" });
     }
-    const token = jwt.sign({ userId : findUser._id },process.env.SECRET,{ expiresIn : "1h" });
-    res.status(200).json({ message : "User found", Token : token });
+    const token = jwt.sign({ userId : findUser._id },process.env.SECRET,{ expiresIn : "24h" });
+    res.status(200).json({ Token : token,isProfileComplete : findUser.isProfileComplete });
 });
 
 export default router;
