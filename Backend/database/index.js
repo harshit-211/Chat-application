@@ -36,6 +36,37 @@ const userSchemas = new mongoose.Schema({
     }
 });
 
-const User = mongoose.model("User",userSchemas);
+const conversationSchemas = new mongoose.Schema({
+    participants : [{ type : mongoose.Schema.Types.ObjectId, ref : "User", required : true }],
+    isGroup : { type : Boolean, required : true },
+    groupName : { type : String },
+    lastMessage : { type : mongoose.Schema.Types.ObjectId, ref : "Message" }
+}, { timestamps : true });
 
-export default User;
+const messageSchema = new mongoose.Schema({
+    conversationId : { type : mongoose.Schema.Types.ObjectId, ref : "Conversation", required : true },
+    sender : { type : mongoose.Schema.Types.ObjectId, ref : "User", required : true },
+    messageType : {
+        type : String,
+        enum : ["text","image","video","file","audio"],
+        default : "text"
+    },
+    content : { type : String, required : true },
+    fileMeta : {
+        originalName : { type : String },
+        size : { type : Number },
+        mimeType : { type : String }
+    },
+    status : {
+        type : String,
+        enum : ["sent","delivered","seen"],
+        default : "sent"
+    },
+    deletedFor : [{ type : mongoose.Schema.Types.ObjectId, ref : "User" }]
+}, { timestamps : true });
+
+const User = mongoose.model("User",userSchemas);
+const Conversation = mongoose.model("Conversation",conversationSchemas);
+const Message = mongoose.model("Message",messageSchema);
+
+export default { User, Conversation, Message };
