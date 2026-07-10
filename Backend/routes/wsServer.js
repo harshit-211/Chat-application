@@ -1,9 +1,9 @@
 
 import { WebSocketServer } from 'ws';
 import jwt from 'jsonwebtoken';
-import User from './models/User.js';
-import Conversation from './models/Conversation.js';
-import Message from './models/Message.js';
+import User from "../database/index.js";
+import Conversation from "../database/index.js";
+import Message from "../database/index.js";
 
 const clients = new Map(); 
 
